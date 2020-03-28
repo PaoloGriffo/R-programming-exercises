@@ -1,0 +1,317 @@
+---
+title: "Esercizi di programmazione strutturata"
+author: "Paolo Francesco Griffo"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)  
+```
+
+- Costruire una funzione in grado di indicare il numero di colonne di una matrice (parametro in ingresso alla funzione) contenenti valori missing (ovvero NA)
+
+```{r}
+mis.col=function(a){
+  if(!is.matrix(a))
+    stop("il parametro in ingresso non Ã¨ una matrice")
+
+
+ncol=dim(a)[2]
+c=0
+for( j in 1:ncol){
+  if (sum(is.na(a[,j]))>0) c=c+1
+}
+print(paste("numero di colonne con dati mancanti:",c))
+}
+
+```
+
+- Genero una matrice con dati mancanti per testare la funzione 
+```{r}
+c=(seq(from = 1,to=40, by=2))
+d=rep(NA,20)
+(e=c(c,d))
+(matrix.prova=matrix(e,nrow = 4,ncol = 10,byrow = FALSE))
+```
+
+```{r}
+mis.col(matrix.prova)
+```
+
+- Genero una matrice con dati mancanti in modo differente 
+```{r}
+matrix.prova2=matrix(1:50,nrow = 5)
+matrix.prova2[lower.tri(matrix.prova2)]=NA
+matrix.prova2
+```
+
+```{r}
+mis.col(matrix.prova2)
+```
+
+- Funzione che conta i missing values in una matrice 
+```{r}
+countmissing = function(matrix){
+  
+  if(!is.matrix(matrix))
+    stop("Format non correct")
+  
+  ncol = dim(matrix)[2]
+  nrow = dim(matrix)[1]
+  nmiss = 0 
+  
+  for( j in 1:ncol){
+    for(i in 1:nrow)
+      
+      if(sum(is.na(matrix[i,j])) > 0) nmiss = nmiss + 1 
+
+  }
+    print(paste("N° missing value:", nmiss, sep=""))
+      
+      }
+```
+
+```{r}
+countmissing(matrix.prova2)
+```
+
+- Funzione che imputa ai dati mancanti di un vettore la media del vettore. Indicare il numero di dati mancanti, la media del vettore ed il vettore di dati completo. 
+
+```{r}
+AAA = function(x) {
+  
+  if(!is.vector(x))
+    stop("format not correct")
+  
+  pos = which(is.na(x))
+  mm = mean(x[-pos])
+  x[pos] = mm 
+  
+  
+  print(paste("N° missing values:", length(pos), sep=""))
+  print(paste("Mean of the vector:", mm, sep = ""))
+  
+  return(x)
+  
+}
+```
+
+```{r}
+missingvalue = c(seq(1,100,4), rep(NA,33))
+AAA(missingvalue)
+```
+
+
+- Si sommino le differenze tra il massimo di un vettore ed ogni suo elemento.
+```{r}
+somma = function(vettore){
+  summae = 0 
+   for( j in vettore){
+    summae = (max(vettore)-vettore[j])+summae 
+  }
+  
+  print(summae)
+}
+```
+
+```{r}
+vettore = c ( 1: 11 )
+somma(vettore)
+```
+
+- Esercizio: ordinare un vettore secondo questa procedura: ogni coppia di elementi nel vettore viene comparata e se essi sono nell'ordine sbagliato vengono invertiti. L'algoritmo scorre tutto il vettore finché non vengono più eseguiti scambi, situazione che indica che il vettore é ordinato. 
+
+```{r}
+my.sort=function(a){
+  if(!is.vector(a))
+    stop("il parametro in ingresso non Ã¨ un vettore")
+  
+  nn=length(a)
+  for(i in 1:(nn-1))
+    for(j in (i+1):nn)
+      if(a[i]>a[j]){
+        aux=a[i]
+        a[i]=a[j]
+        a[j]=aux
+      }
+  return(a)
+}
+```
+
+```{r}
+v=sample(1:10)
+v
+```
+```{r}
+my.sort(v)
+```
+
+- La funzione my.sort() produce lo stesso risultato della funzione interna sort() con maggiore efficienza
+
+```{r}
+v=sample(5000)
+t0=Sys.time()
+v1=sort(v)
+Sys.time()-t0
+
+```
+```{r}
+t0=Sys.time()
+v1=my.sort(v)
+Sys.time()-t0
+```
+
+- Bubble Sort (Original)
+
+```{r}
+bubblesort = function(a){
+  n = lenght(a)
+  swap=1
+  while(swap==1){
+    swap = 0
+    for (i in (1:(n-1))){
+      if (a[i] > a[i+1]){
+        abackup = a[i]
+        a[i+1] = abackup 
+        swap = 1
+      }
+    }
+  }
+return(a)
+}
+```
+
+- Estrarre i numeri pari e dispari da un vettore 
+
+```{r}
+numeripari = function(sample){
+  
+  if(!is.vector(sample))
+    stop("formato non corretto")
+  
+  
+ bin =(sample%%2)
+ pari= which(bin==0)
+ pari = sample[pari]
+ 
+ dispari = which(bin==1)
+ dispari = sample[dispari]
+ 
+  
+  print(paste("Numero di elementi pari:",length(pari),sep=""))
+  print(paste("Numero di elementi dispari:", length(dispari),sep=""))
+  
+  cat("Numeri pari :", pari, "\n")
+  cat("Numeri dispari :", dispari, "\n")
+
+}
+```
+
+```{r}
+prova = sample(1:10,10,replace=TRUE)
+numeripari(prova)
+
+```
+
+- Ricerca binaria: dato un vettore ordinato cominciare la ricerca dal centro se il numero centrale è maggiore di quello ricercato allora spostare la ricerca a sinistra se il numero centrale è minore di quello ricercato spostare la ricerca a destra se le posizioni finiscono e il vettore non è stato trovato indicare che non è stato trovato.
+
+```{r}
+ricbin = function(v,a){
+  
+  if(!is.vector(a)) stop("first input parameter must be a vector")
+  if( sum(v == sort(v)) < length(v) ) stop("vector must be ordered")
+  
+  pos = 0 
+  flag = 0 
+  while (flag == 0){
+    meta = ceiling( length(v)/2 )
+  if(v[meta]==a) {
+    print(paste("trovato in posizione: ",pos+meta))
+    flag = 1
+  }
+  else if(meta == 1){
+    print("non trovato")
+    flag = 1 
+  }
+  else if( v[meta] > a ) v = v[1:(meta-1)]
+  else{
+    pos = pos + meta
+    v = v[(meta + 1):length(v)]
+  }
+  
+  }
+}
+  
+```
+
+```{r}
+
+ordered=c(sort(sample(1:90,90)))
+
+ricbin(ordered,9)
+```
+
+- Estrarre una schedina da 6 numeri. Estrarre n schedine e verificare quante di queste risultino avere elementi in comune con la prima. 
+
+```{r}
+bet = function(n){
+  
+  if(n == 0) stop("Numero di schedine insufficienti.")
+  
+  schedine = list()
+  nn = rep(1,n)
+  win = sample(1:90,6)
+  vittorie = c()
+  perdenti = c()
+  
+  for( i in 1:length(nn)){
+    schedine[[i]] = sample(1:90,6) 
+  }
+  
+  for(i in 1:length(schedine)){
+    
+    if( sum((schedine[[i]]) == win) == 2){
+      vittorie[i] = i
+      cat("Ambo vincente: ", schedine[[i]],"\n")
+    }
+    else if( sum((schedine[[i]]) == win) == 3){
+      vittorie[i] = i
+      cat("Terna vincente: ", schedine[[i]],"\n")
+    }
+    else if( sum((schedine[[i]]) == win) == 4){
+      vittorie[i] = i
+      cat("Quaterna vincente: ", schedine[[i]],"\n")
+    }
+    else if( sum((schedine[[i]]) == win) == 5){
+      vittorie[i] = i
+      cat("Cinquina vincente: ", schedine[[i]],"\n")
+    }
+    else if( sum((schedine[[i]]) == win) == 6){
+      vittorie[i] = i
+      cat("Sestina vincente: ", schedine[[i]],"\n")
+      
+    }
+    else{
+      perdenti[i] = i
+    }
+  }
+  
+  vittorie = which(!is.na(vittorie))
+  perdenti = which(!is.na(perdenti))
+  
+  print(paste("Schedine risultate vincenti: ", length(schedine[vittorie]),sep=""))
+  print(paste("Schedine risultate perdenti: ", length(schedine[perdenti]),sep=""))
+  cat("Numeri estratti: ", win,"\n")
+  
+}
+```
+
+```{r}
+bet(10000)
+
+```
+
+
